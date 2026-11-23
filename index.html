@@ -2484,6 +2484,32 @@
         openEtaModal(orderId, "approve");
     }
 
+    function declineOrder(orderId) {
+        var order = orders.find(function (o) { return o.id === orderId; });
+        if (!order || order.status !== "pending") return;
+
+        order.status = "cancelled";
+        order.cancelledAt = Date.now();
+        order.cancelledBy = (typeof currentUser !== "undefined" && currentUser && currentUser.email) || "";
+        order.buyerUnread = (order.buyerUnread || 0) + 1;
+        saveOrders();
+        adjustStockForItems(order.items, 1);
+        showToast("Order declined.");
+    }
+
+    function cancelOrder(orderId) {
+        var order = orders.find(function (o) { return o.id === orderId; });
+        if (!order || order.status !== "confirmed") return;
+
+        order.status = "cancelled";
+        order.cancelledAt = Date.now();
+        order.cancelledBy = (typeof currentUser !== "undefined" && currentUser && currentUser.email) || "";
+        order.buyerUnread = (order.buyerUnread || 0) + 1;
+        saveOrders();
+        adjustStockForItems(order.items, 1);
+        showToast("Order cancelled.");
+    }
+
     function markDelivered(orderId) {
         var order = orders.find(function (o) { return o.id === orderId; });
         if (!order || order.status !== "confirmed") return;
